@@ -1,10 +1,10 @@
 # gate_to_json
 
-This component export the treatment-related findings annotated in XML GATE format to JSON format.
+This component export debbie annotations in XML GATE format to JSON format.
 
 ## Description 
 
-This component is only used inside the treatment-related findings pipeline because is tired up to that specific domain.
+This component is only used inside the debbie pipeline because is tired up to that specific domain.
 
 
 ## Build and Run the Docker 
