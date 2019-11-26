@@ -1,9 +1,9 @@
 #!/bin/sh
 
 BASEDIR=/usr/local
-ADES_EXPORT_JSON_HOME="${BASEDIR}/share/adesexporttojson/"
+GATE_EXPORT_JSON_HOME="${BASEDIR}/share/gatetojson/"
 
-ADES_EXPORT_JSON_VERSION=1.0
+GATE_EXPORT_JSON_VERSION=1.0
 
 # Exit on error
 set -e
@@ -30,13 +30,13 @@ fi
 mvn clean install -DskipTests
 
 #rename jar
-mv target/ades-export-to-json-0.0.1-SNAPSHOT-jar-with-dependencies.jar ades-export-to-json-${ADES_EXPORT_JSON_VERSION}.jar
+mv target/gate_to_json-0.0.1-SNAPSHOT-jar-with-dependencies.jar gate_to_json-${GATE_EXPORT_JSON_VERSION}.jar
 
-cat > /usr/local/bin/ades-export-to-json <<EOF
+cat > /usr/local/bin/gate_to_json <<EOF
 #!/bin/sh
-exec java \$JAVA_OPTS -jar "${ADES_EXPORT_JSON_HOME}/ades-export-to-json-${ADES_EXPORT_JSON_VERSION}.jar" -workdir "${ADES_EXPORT_JSON_HOME}" "\$@"
+exec java \$JAVA_OPTS -jar "${GATE_EXPORT_JSON_HOME}/gate_to_json-${GATE_EXPORT_JSON_VERSION}.jar" -workdir "${GATE_EXPORT_JSON_HOME}" "\$@"
 EOF
-chmod +x /usr/local/bin/ades-export-to-json
+chmod +x /usr/local/bin/gate_to_json
 
 #delete target
 rm -R target src pom.xml

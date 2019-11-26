@@ -1,4 +1,4 @@
-package es.bsc.inb.export.gate.to.json.main;
+package es.bsc.inb.debbie.export.json.main;
 
 import java.io.File;
 import java.io.FileOutputStream;

@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>es.bsc.inb.nlp</groupId>
-  <artifactId>ades-export-to-json</artifactId>
+  <artifactId>gate_to_json</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
@@ -54,7 +54,7 @@
 			                <archive>
 			                <manifest>
 			                    <mainClass>
-			                        es.bsc.inb.ades.export.json.main.App
+			                        es.bsc.inb.debbie.export.json.main.App
 			                    </mainClass>
 			                </manifest>
 			                </archive>

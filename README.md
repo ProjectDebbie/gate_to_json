@@ -1,4 +1,4 @@
-# ades-export-to-json
+# gate_to_json
 
 This component export the treatment-related findings annotated in XML GATE format to JSON format.
 
@@ -6,18 +6,13 @@ This component export the treatment-related findings annotated in XML GATE forma
 
 This component is only used inside the treatment-related findings pipeline because is tired up to that specific domain.
 
-## For clone this component
-
-	git clone --depth 1 https://github.com/inab/docker-textmining-tools.git ades-export-to-json
-	cd ades-export-to-json
-	git filter-branch --prune-empty --subdirectory-filter ades-export-to-json HEAD
 
 ## Build and Run the Docker 
 
-	# To build the docker, just go into the ades-export-to-json folder and execute
-	docker build -t ades-export-to-json .
+	# To build the docker, just go into the gate_to_json folder and execute
+	docker build -t gate_to_json .
 	#To run the docker, just set the input_folder and the output
-	mkdir ${PWD}/output_annotation; docker run --rm -u $UID -v ${PWD}/input_folder:/in:ro -v ${PWD}/output_annoation:/out:rw ades-export-to-json ades-export-to-json -i /in -o /out -a MY_SET_NAME	
+	mkdir ${PWD}/output_annotation; docker run --rm -u $UID -v ${PWD}/input_folder:/in:ro -v ${PWD}/output_annoation:/out:rw gate_to_json gate-to-json -i /in -o /out -a MY_SET_NAME	
 Parameters:
 <p>
 -i input folder with the documents to annotated. The documents could be plain txt or xml gate documents.
