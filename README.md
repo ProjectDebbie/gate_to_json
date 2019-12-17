@@ -2,7 +2,7 @@
 
 This component export debbie annotations in XML GATE format to JSON format.
 
-## Description 
+## Description  of the project
 
 This component is only used inside the debbie pipeline because is tired up to that specific domain.
 
