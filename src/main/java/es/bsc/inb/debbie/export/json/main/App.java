@@ -163,7 +163,7 @@ public class App {
 	    anns.put("MedicalApplication", as.get("MedicalApplication"));
 	    anns.put("AdverseEffects", as.get("AdverseEffects"));
 	    anns.put("StudyType", as.get("StudyType"));
-	    anns.put("AnimalModel", as.get("AnimalModel"))
+	    anns.put("AnimalModel", as.get("AnimalModel"));
             
 	    java.io.Writer out = new java.io.BufferedWriter(new java.io.OutputStreamWriter(new FileOutputStream(outputGATEFile, false)));
     	gate.corpora.DocumentJsonUtils.writeDocument(doc, anns, out);
