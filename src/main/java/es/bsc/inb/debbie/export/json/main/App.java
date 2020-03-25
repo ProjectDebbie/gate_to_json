@@ -160,7 +160,6 @@ public class App {
 	    anns.put("Tissue", as.get("Tissue"));
 	    anns.put("ManufacturedObjectFeatures", as.get("ManufacturedObjectFeatures"));
 	    anns.put("EffectOnBiologicalSystem", as.get("EffectOnBiologicalSystem"));
-	    anns.put("MedicalApplication", as.get("MedicalApplication"));
 	    anns.put("AdverseEffects", as.get("AdverseEffects"));
 	    anns.put("StudyType", as.get("StudyType"));
 	    anns.put("AnimalModel", as.get("AnimalModel"));
