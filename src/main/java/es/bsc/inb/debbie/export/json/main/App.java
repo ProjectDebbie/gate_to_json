@@ -149,18 +149,22 @@ public class App {
 		gate.Document doc = Factory.newDocument(inputFile.toURI().toURL(), "UTF-8");
 		AnnotationSet as = doc.getAnnotations("BSC");
 	    Map<String, Collection<Annotation>> anns = new HashMap<String, Collection<Annotation>>();
-	    anns.put("Application", as.get("Application"));
+	    anns.put("MedicalApplication", as.get("MedicalApplication"));
 	    anns.put("Structure", as.get("Structure"));
 	    anns.put("AsscoiatedBiologicalProcess", as.get("AsscoiatedBiologicalProcess"));
 	    anns.put("ResearchTechnique", as.get("ResearchTechnique"));
 	    anns.put("Biomaterial", as.get("Biomaterial"));
 	    anns.put("ManufacturedObject", as.get("ManufacturedObject"));
-	    anns.put("BioactiveSubstance", as.get("BioactiveSubstance"));
-	    anns.put("cell", as.get("cell"));
+	    anns.put("BiologicallyActiveSubstance", as.get("BiologicallyActiveSubstance"));
+	    anns.put("Cell", as.get("Cell"));
 	    anns.put("Tissue", as.get("Tissue"));
 	    anns.put("ManufacturedObjectFeatures", as.get("ManufacturedObjectFeatures"));
 	    anns.put("EffectOnBiologicalSystem", as.get("EffectOnBiologicalSystem"));
 	    anns.put("MedicalApplication", as.get("MedicalApplication"));
+	    anns.put("AdverseEffects", as.get("AdverseEffects"));
+	    anns.put("StudyType", as.get("StudyType"));
+	    anns.put("AnimalModel", as.get("AnimalModel"))
+            
 	    java.io.Writer out = new java.io.BufferedWriter(new java.io.OutputStreamWriter(new FileOutputStream(outputGATEFile, false)));
     	gate.corpora.DocumentJsonUtils.writeDocument(doc, anns, out);
 		out.close();
