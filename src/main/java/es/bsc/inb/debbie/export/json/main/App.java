@@ -151,7 +151,7 @@ public class App {
 	    Map<String, Collection<Annotation>> anns = new HashMap<String, Collection<Annotation>>();
 	    anns.put("MedicalApplication", as.get("MedicalApplication"));
 	    anns.put("Structure", as.get("Structure"));
-	    anns.put("AsscoiatedBiologicalProcess", as.get("AsscoiatedBiologicalProcess"));
+	    anns.put("AssociatedBiologicalProcess", as.get("AsscoiatedBiologicalProcess"));
 	    anns.put("ResearchTechnique", as.get("ResearchTechnique"));
 	    anns.put("Biomaterial", as.get("Biomaterial"));
 	    anns.put("ManufacturedObject", as.get("ManufacturedObject"));
@@ -163,6 +163,8 @@ public class App {
 	    anns.put("AdverseEffects", as.get("AdverseEffects"));
 	    anns.put("StudyType", as.get("StudyType"));
 	    anns.put("AnimalModel", as.get("AnimalModel"));
+	    anns.put("MaterialProcessing", as.get("MaterialProcessing"));
+            anns.put("ArchitecturalOrganization", as.get("ArchitecturalOrganization"));
             
 	    java.io.Writer out = new java.io.BufferedWriter(new java.io.OutputStreamWriter(new FileOutputStream(outputGATEFile, false)));
     	gate.corpora.DocumentJsonUtils.writeDocument(doc, anns, out);
