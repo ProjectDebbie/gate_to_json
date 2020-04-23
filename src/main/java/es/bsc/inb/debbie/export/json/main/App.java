@@ -151,7 +151,7 @@ public class App {
 	    Map<String, Collection<Annotation>> anns = new HashMap<String, Collection<Annotation>>();
 	    anns.put("MedicalApplication", as.get("MedicalApplication"));
 	    anns.put("Structure", as.get("Structure"));
-	    anns.put("AssociatedBiologicalProcess", as.get("AsscoiatedBiologicalProcess"));
+	    anns.put("AssociatedBiologicalProcess", as.get("AssociatedBiologicalProcess"));
 	    anns.put("ResearchTechnique", as.get("ResearchTechnique"));
 	    anns.put("Biomaterial", as.get("Biomaterial"));
 	    anns.put("ManufacturedObject", as.get("ManufacturedObject"));
