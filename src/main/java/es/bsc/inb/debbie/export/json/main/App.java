@@ -164,7 +164,7 @@ public class App {
 	    anns.put("StudyType", as.get("StudyType"));
 	    anns.put("AnimalModel", as.get("AnimalModel"));
 	    anns.put("MaterialProcessing", as.get("MaterialProcessing"));
-            anns.put("ArchitecturalOrganization", as.get("ArchitecturalOrganization"));
+        anns.put("ArchitecturalOrganization", as.get("ArchitecturalOrganization"));
             
 	    java.io.Writer out = new java.io.BufferedWriter(new java.io.OutputStreamWriter(new FileOutputStream(outputGATEFile, false)));
     	gate.corpora.DocumentJsonUtils.writeDocument(doc, anns, out);
