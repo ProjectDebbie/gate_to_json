@@ -27,7 +27,6 @@ Parameters:
 
 * [Docker](https://www.docker.com/) - Docker Containers
 * [Maven](https://maven.apache.org/) - Dependency Management
-* [GATE](https://gate.ac.uk/overview.html) - GATE: a full-lifecycle open source solution for text processing
 
 ## Versioning
 
