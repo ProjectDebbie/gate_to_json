@@ -6,7 +6,6 @@ This component export debbie annotations in XML GATE format to JSON format.
 
 This component is only used inside the debbie pipeline because is tired up to that specific domain.
 
-
 ## Build and Run the Docker 
 
 	# To build the docker, just go into the gate_to_json folder and execute
@@ -32,15 +31,15 @@ Parameters:
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/inab/docker-textmining-tools/edit/master/nlp-standard-preprocessing/tags). 
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/ProjectDebbie/gate_to_json/edit/master/nlp-standard-preprocessing/tags). 
 
 ## Authors
 
-* **Javier Corvi** 
+* **Austin McKitrick** - **Javier Corvi** 
 
 
 ## License
 
-This project is licensed under the GNU GENERAL PUBLIC LICENSE Version 3 - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the GNU GENERAL PUBLIC LICENSE Version 3 - see the [LICENSE](LICENSE.txt) file for details
 	
 		
