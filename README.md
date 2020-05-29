@@ -1,10 +1,10 @@
 # gate_to_json
 
-This component export debbie annotations in XML GATE format to JSON format.
+This component exports debbie annotations in XML GATE format to JSON format.
 
 ## Description  of the project
 
-This component is only used inside the debbie pipeline because is tired up to that specific domain.
+This component is only used inside the debbie pipeline because is tied up to that specific domain.
 
 ## Build and Run the Docker 
 
@@ -39,6 +39,6 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## License
 
-This project is licensed under the GNU GENERAL PUBLIC LICENSE Version 3 - see the [LICENSE](LICENSE.txt) file for details
+This project is licensed under the GNU GENERAL PUBLIC LICENSE Version 3 - see the [LICENSE](LICENSE) file for details
 	
 		
