@@ -4,10 +4,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -16,6 +21,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.maven.shared.utils.io.FileUtils;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 
@@ -79,6 +85,14 @@ public class App {
 	    if(!outputDirectory.exists())
 	    	outputDirectory.mkdirs();
 
+	    Set<String> processedFiles = null;
+	    try {
+	    	processedFiles = getFiles(outputFilePath);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	    
 	    try {
 			Gate.init();
 		} catch (GateException e) {
@@ -92,7 +106,7 @@ public class App {
 	    }
 
 		try {
-			process(inputFilePath, outputFilePath,workdirPath);
+			process(inputFilePath, outputFilePath, workdirPath, processedFiles);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -103,18 +117,20 @@ public class App {
 	 * @param properties_parameters_path
      * @throws IOException 
 	 */
-	public static void process(String inputDirectoryPath, String outputDirectoryPath, String workdir) throws IOException {
+	public static void process(String inputDirectoryPath, String outputDirectoryPath, String workdir, Set<String> processedFiles) throws IOException {
     	System.out.println("App::processTagger :: INIT ");
 		if (java.nio.file.Files.isDirectory(Paths.get(inputDirectoryPath))) {
 			File inputDirectory = new File(inputDirectoryPath);
 			File[] files =  inputDirectory.listFiles();
 			for (File file : files) {
-				if(file.getName().endsWith(".xml")){
+				if(file.getName().endsWith(".xml") && !processedFiles.contains(FileUtils.removeExtension(file.getName()))){
 					try {
 						System.out.println("App::process :: processing file : " + file.getAbsolutePath());
 						String fileOutPutName = file.getName().replace(".xml", ".json");
 						File outputGATEFile = new File (outputDirectoryPath +  File.separator + fileOutPutName);
 						processDocument(file, outputGATEFile);
+						fileOutPutName=null;
+						outputGATEFile=null;
 					} catch (ResourceInstantiationException e) {
 						System.out.println("App::process :: error with document " + file.getAbsolutePath());
 						e.printStackTrace();
@@ -165,9 +181,34 @@ public class App {
 	    anns.put("AnimalModel", as.get("AnimalModel"));
 	    anns.put("MaterialProcessing", as.get("MaterialProcessing"));
         anns.put("ArchitecturalOrganization", as.get("ArchitecturalOrganization"));
-            
-	    java.io.Writer out = new java.io.BufferedWriter(new java.io.OutputStreamWriter(new FileOutputStream(outputGATEFile, false)));
+        java.io.Writer out = new java.io.BufferedWriter(new java.io.OutputStreamWriter(new FileOutputStream(outputGATEFile, false)));
     	gate.corpora.DocumentJsonUtils.writeDocument(doc, anns, out);
-		out.close();
-    }
+		out.flush();
+    	out.close();
+		doc.cleanup();
+		anns.clear();
+		as.clear();
+		out=null;
+		doc=null;
+		as=null;
+		anns=null;
+	}
+	
+	/**
+     * Return a set of files 
+     * @param dir
+     * @return
+     * @throws IOException
+     */
+	public static Set<String> getFiles(String dir) throws IOException {
+	    Set<String> fileList = new HashSet<>();
+	    try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(dir))) {
+	        for (Path path : stream) {
+	            if (!Files.isDirectory(path)) {
+	                fileList.add(FileUtils.removeExtension(path.getFileName().toString()));
+	            }
+	        }
+	    }
+	    return fileList;
+	}
 }
