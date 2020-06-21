@@ -122,6 +122,8 @@ public class App {
 		if (java.nio.file.Files.isDirectory(Paths.get(inputDirectoryPath))) {
 			File inputDirectory = new File(inputDirectoryPath);
 			File[] files =  inputDirectory.listFiles();
+			System.out.println("Total files : " + files.length);
+			System.out.println("Files already processed : " + processedFiles.size());
 			for (File file : files) {
 				if(file.getName().endsWith(".xml") && !processedFiles.contains(FileUtils.removeExtension(file.getName()))){
 					try {
@@ -183,7 +185,6 @@ public class App {
         anns.put("ArchitecturalOrganization", as.get("ArchitecturalOrganization"));
         java.io.Writer out = new java.io.BufferedWriter(new java.io.OutputStreamWriter(new FileOutputStream(outputGATEFile, false)));
     	gate.corpora.DocumentJsonUtils.writeDocument(doc, anns, out);
-		out.flush();
     	out.close();
 		doc.cleanup();
 		anns.clear();
