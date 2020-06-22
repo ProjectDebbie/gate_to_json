@@ -23,6 +23,9 @@ Parameters:
 -a annotation set output
 </p>
 
+## Actual Version: 1.0.1, 2020-06-22
+## [Changelog](https://github.com/ProjectDebbie/gate_to_json/blob/master/CHANGELOG)
+
 ## Built With
 
 * [Docker](https://www.docker.com/) - Docker Containers
