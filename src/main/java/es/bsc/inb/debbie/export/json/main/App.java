@@ -3,12 +3,16 @@ package es.bsc.inb.debbie.export.json.main;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -22,6 +26,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.maven.shared.utils.io.FileUtils;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 
@@ -119,6 +125,7 @@ public class App {
 	 */
 	public static void process(String inputDirectoryPath, String outputDirectoryPath, String workdir, Set<String> processedFiles) throws IOException {
     	System.out.println("App::processTagger :: INIT ");
+    	long begTest = new java.util.Date().getTime();
 		if (java.nio.file.Files.isDirectory(Paths.get(inputDirectoryPath))) {
 			File inputDirectory = new File(inputDirectoryPath);
 			File[] files =  inputDirectory.listFiles();
@@ -128,11 +135,13 @@ public class App {
 				if(file.getName().endsWith(".xml") && !processedFiles.contains(FileUtils.removeExtension(file.getName()))){
 					try {
 						System.out.println("App::process :: processing file : " + file.getAbsolutePath());
-						String fileOutPutName = file.getName().replace(".xml", ".json");
-						File outputGATEFile = new File (outputDirectoryPath +  File.separator + fileOutPutName);
-						processDocument(file, outputGATEFile);
+						String fileOutPutName = file.getName();
+						File outputAbstractFile = new File (outputDirectoryPath +  File.separator + fileOutPutName.replace(".xml", "_abstract.json"));
+						File outputAnnotationsFile = new File (outputDirectoryPath +  File.separator + fileOutPutName.replace(".xml", "_annotations.json"));
+						processDocument(file, outputAbstractFile, outputAnnotationsFile);
 						fileOutPutName=null;
-						outputGATEFile=null;
+						outputAbstractFile=null;
+						outputAnnotationsFile=null;
 					} catch (ResourceInstantiationException e) {
 						System.out.println("App::process :: error with document " + file.getAbsolutePath());
 						e.printStackTrace();
@@ -151,6 +160,8 @@ public class App {
 		}else {
 			System.out.println("No directory :  " + inputDirectoryPath);
 		}
+		Double secs = new Double((new java.util.Date().getTime() - begTest)*0.001);
+		System.out.println("Execution time:  " + secs + " seconds");
 		System.out.println("App::process :: END ");
 	}
 
@@ -163,36 +174,91 @@ public class App {
 	 * @throws JsonGenerationException 
 	 * @throws InvalidOffsetException
 	 */
-	private static void processDocument(File inputFile, File outputGATEFile) throws ResourceInstantiationException, JsonGenerationException, IOException{
-		gate.Document doc = Factory.newDocument(inputFile.toURI().toURL(), "UTF-8");
-		AnnotationSet as = doc.getAnnotations("BSC");
-	    Map<String, Collection<Annotation>> anns = new HashMap<String, Collection<Annotation>>();
-	    anns.put("MedicalApplication", as.get("MedicalApplication"));
-	    anns.put("Structure", as.get("Structure"));
-	    anns.put("AssociatedBiologicalProcess", as.get("AssociatedBiologicalProcess"));
-	    anns.put("ResearchTechnique", as.get("ResearchTechnique"));
-	    anns.put("Biomaterial", as.get("Biomaterial"));
-	    anns.put("ManufacturedObject", as.get("ManufacturedObject"));
-	    anns.put("BiologicallyActiveSubstance", as.get("BiologicallyActiveSubstance"));
-	    anns.put("Cell", as.get("Cell"));
-	    anns.put("Tissue", as.get("Tissue"));
-	    anns.put("ManufacturedObjectFeatures", as.get("ManufacturedObjectFeatures"));
-	    anns.put("EffectOnBiologicalSystem", as.get("EffectOnBiologicalSystem"));
-	    anns.put("AdverseEffects", as.get("AdverseEffects"));
-	    anns.put("StudyType", as.get("StudyType"));
-	    anns.put("AnimalModel", as.get("AnimalModel"));
-	    anns.put("MaterialProcessing", as.get("MaterialProcessing"));
-        anns.put("ArchitecturalOrganization", as.get("ArchitecturalOrganization"));
-        java.io.Writer out = new java.io.BufferedWriter(new java.io.OutputStreamWriter(new FileOutputStream(outputGATEFile, false)));
-    	gate.corpora.DocumentJsonUtils.writeDocument(doc, anns, out);
-    	out.close();
-		doc.cleanup();
-		anns.clear();
-		as.clear();
-		out=null;
-		doc=null;
-		as=null;
-		anns=null;
+	private static void processDocument(File inputFile, File outputAbstractFile, File outputAnnotationsFile) throws ResourceInstantiationException, JsonGenerationException, IOException{
+		try {
+			gate.Document doc = Factory.newDocument(inputFile.toURI().toURL(), "UTF-8");
+			AnnotationSet as = doc.getAnnotations("BSC");
+		    Map<String, Collection<Annotation>> anns = new HashMap<String, Collection<Annotation>>();
+		    anns.put("MedicalApplication", as.get("MedicalApplication"));
+		    anns.put("Structure", as.get("Structure"));
+		    anns.put("AssociatedBiologicalProcess", as.get("AssociatedBiologicalProcess"));
+		    anns.put("ResearchTechnique", as.get("ResearchTechnique"));
+		    anns.put("Biomaterial", as.get("Biomaterial"));
+		    anns.put("ManufacturedObject", as.get("ManufacturedObject"));
+		    anns.put("BiologicallyActiveSubstance", as.get("BiologicallyActiveSubstance"));
+		    anns.put("Cell", as.get("Cell"));
+		    anns.put("Tissue", as.get("Tissue"));
+		    anns.put("ManufacturedObjectFeatures", as.get("ManufacturedObjectFeatures"));
+		    anns.put("EffectOnBiologicalSystem", as.get("EffectOnBiologicalSystem"));
+		    anns.put("AdverseEffects", as.get("AdverseEffects"));
+		    anns.put("StudyType", as.get("StudyType"));
+		    anns.put("AnimalModel", as.get("AnimalModel"));
+		    anns.put("MaterialProcessing", as.get("MaterialProcessing"));
+	        anns.put("ArchitecturalOrganization", as.get("ArchitecturalOrganization"));
+	        String plainText = doc.getContent().getContent(0l, gate.Utils.lengthLong(doc)).toString();
+			String[] splitText = plainText.split("\n");
+			String pubDate = splitText[0];
+			String pmid = splitText[1];
+			String title = splitText[2];
+ 	        //write the gate annotations into a string, because we need to agregate more relevant attributes later
+	        StringWriter sw = new StringWriter();
+	        java.io.Writer out = new java.io.BufferedWriter(sw);
+	        gate.corpora.DocumentJsonUtils.writeDocument(doc, anns, out);
+	    	
+	        //now add other relevant attributes, first parse the string to json, then add attributes.
+	    	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+	    	Date date = new Date();
+	    	JSONParser parser = new JSONParser();
+	    	JSONObject json = (JSONObject) parser.parse(sw.toString());
+			json.put("_id", pmid);
+			json.put("pmid", pmid);
+			json.put("date", dateFormat.format(date));
+			json.put("pubdate", pubDate);
+			json.put("title", title);
+			String text_document = json.get("text").toString();
+			json.remove("text");
+			//write to file metadata
+	    	java.io.Writer writer = new java.io.BufferedWriter(new java.io.OutputStreamWriter(new FileOutputStream(outputAnnotationsFile, false)));
+	    	writer.write(json.toJSONString());
+	    	writer.flush();
+	    	writer.close();
+	    	
+	    	//document text
+	    	JSONObject textJsonObject = new JSONObject();
+	    	textJsonObject.put("_id", pmid);
+	    	textJsonObject.put("pmid", pmid);
+	    	textJsonObject.put("text", text_document);
+			//write to file document text
+	    	java.io.Writer writer2 = new java.io.BufferedWriter(new java.io.OutputStreamWriter(new FileOutputStream(outputAbstractFile, false)));
+	    	writer2.write(textJsonObject.toJSONString());
+	    	writer2.flush();
+	    	writer2.close();
+	    	out.close();
+			doc.cleanup();
+			anns.clear();
+			as.clear();
+			sw.close();
+			json.clear();
+			textJsonObject.clear();
+			parser=null;
+			json=null;
+			textJsonObject=null;
+			writer=null;
+			sw=null;
+			out=null;
+			doc=null;
+			as=null;
+			anns=null;
+		} catch (org.json.simple.parser.ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidOffsetException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}catch(Exception e) {
+			System.out.println("processDocument :: ERROR with file " + inputFile.getAbsolutePath());
+			e.printStackTrace();
+		}
 	}
 	
 	/**
