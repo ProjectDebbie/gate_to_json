@@ -1,6 +1,6 @@
 # gate_to_json
 
-This component exports debbie annotations in XML GATE format to JSON format.
+This component exports debbie annotations in XML GATE format to JSON format..
 
 ## Description  of the project
 
