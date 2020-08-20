@@ -164,7 +164,6 @@ public class App {
 		System.out.println("Execution time:  " + secs + " seconds");
 		System.out.println("App::process :: END ");
 	}
-
 	/**
 	 * Execute process in a document
 	 * @param inputFile
@@ -179,27 +178,32 @@ public class App {
 			gate.Document doc = Factory.newDocument(inputFile.toURI().toURL(), "UTF-8");
 			AnnotationSet as = doc.getAnnotations("BSC");
 		    Map<String, Collection<Annotation>> anns = new HashMap<String, Collection<Annotation>>();
-		    anns.put("MedicalApplication", as.get("MedicalApplication"));
-		    anns.put("Structure", as.get("Structure"));
-		    anns.put("AssociatedBiologicalProcess", as.get("AssociatedBiologicalProcess"));
-		    anns.put("ResearchTechnique", as.get("ResearchTechnique"));
 		    anns.put("Biomaterial", as.get("Biomaterial"));
-		    anns.put("ManufacturedObject", as.get("ManufacturedObject"));
+		    anns.put("BiomaterialTypes", as.get("BiomaterialTypes"));
+		    anns.put("Chemical", as.get("Chemical"));
 		    anns.put("BiologicallyActiveSubstance", as.get("BiologicallyActiveSubstance"));
-		    anns.put("Cell", as.get("Cell"));
-		    anns.put("Tissue", as.get("Tissue"));
+		    anns.put("ManufacturedObject", as.get("ManufacturedObject"));
+		    anns.put("ManufacturedObjectComponent", as.get("ManufacturedObjectComponent"));
+		    anns.put("MedicalApplication", as.get("MedicalApplication"));
 		    anns.put("ManufacturedObjectFeatures", as.get("ManufacturedObjectFeatures"));
-		    anns.put("EffectOnBiologicalSystem", as.get("EffectOnBiologicalSystem"));
-		    anns.put("AdverseEffects", as.get("AdverseEffects"));
-		    anns.put("StudyType", as.get("StudyType"));
-		    anns.put("AnimalModel", as.get("AnimalModel"));
+		    anns.put("Shape", as.get("Shape"));
+		    anns.put("Structure", as.get("Structure"));
+		    anns.put("ArchitecturalOrganization", as.get("ArchitecturalOrganization"));
+		    anns.put("DegradationFeatures", as.get("DegradationFeatures"));
+		    anns.put("AssociatedBiologicalProcess", as.get("AssociatedBiologicalProcess"));
 		    anns.put("MaterialProcessing", as.get("MaterialProcessing"));
-	        anns.put("ArchitecturalOrganization", as.get("ArchitecturalOrganization"));
-	        String plainText = doc.getContent().getContent(0l, gate.Utils.lengthLong(doc)).toString();
+		    anns.put("Cell", as.get("Cell"));
+		    anns.put("AnimalModel", as.get("AnimalModel"));
+		    anns.put("Tissue", as.get("Tissue"));
+		    anns.put("AdverseEffects", as.get("AdverseEffects"));
+		    anns.put("ResearchTechnique", as.get("ResearchTechnique"));
+		    anns.put("EffectOnBiologicalSystem", as.get("EffectOnBiologicalSystem"));
+		    anns.put("StudyType", as.get("StudyType"));
+		    String plainText = doc.getContent().getContent(0l, gate.Utils.lengthLong(doc)).toString();
 			String[] splitText = plainText.split("\n");
 			String pubDate = splitText[0];
-			String pmid = splitText[1];
-			String title = splitText[2];
+			String title = splitText[1];
+			String pmid = inputFile.getName().replace(".xml", "");
  	        //write the gate annotations into a string, because we need to agregate more relevant attributes later
 	        StringWriter sw = new StringWriter();
 	        java.io.Writer out = new java.io.BufferedWriter(sw);
@@ -244,11 +248,16 @@ public class App {
 			json=null;
 			textJsonObject=null;
 			writer=null;
+			writer2=null;
 			sw=null;
 			out=null;
 			doc=null;
 			as=null;
 			anns=null;
+			text_document=null;
+			pmid=null;
+			title=null;
+			pubDate=null;
 		} catch (org.json.simple.parser.ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
