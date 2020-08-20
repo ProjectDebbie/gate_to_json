@@ -23,7 +23,7 @@ Parameters:
 -a annotation set output
 </p>
 
-## Actual Version 1.0.2, 2020-06-23
+## Actual Version 1.0.3, 2020-08-20
 ## [Changelog](https://github.com/ProjectDebbie/gate_to_json/blob/master/CHANGELOG)
 
 ## Built With
