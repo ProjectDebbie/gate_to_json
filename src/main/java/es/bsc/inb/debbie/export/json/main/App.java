@@ -202,9 +202,9 @@ public class App {
 		    String plainText = doc.getContent().getContent(0l, gate.Utils.lengthLong(doc)).toString();
 			String[] splitText = plainText.split("\n");
 			String pubDate = splitText[0];
-			String title = splitText[1];
-			String pmid = inputFile.getName().replace(".xml", "");
- 	        //write the gate annotations into a string, because we need to agregate more relevant attributes later
+			String pmid = splitText[1];
+			String title = splitText[2];
+			//write the gate annotations into a string, because we need to agregate more relevant attributes later
 	        StringWriter sw = new StringWriter();
 	        java.io.Writer out = new java.io.BufferedWriter(sw);
 	        gate.corpora.DocumentJsonUtils.writeDocument(doc, anns, out);
