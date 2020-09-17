@@ -193,7 +193,7 @@ public class App {
 		    anns.put("AssociatedBiologicalProcess", as.get("AssociatedBiologicalProcess"));
 		    anns.put("MaterialProcessing", as.get("MaterialProcessing"));
 		    anns.put("Cell", as.get("Cell"));
-		    anns.put("AnimalModel", as.get("AnimalModel"));
+		    anns.put("Species", as.get("Species"));
 		    anns.put("Tissue", as.get("Tissue"));
 		    anns.put("AdverseEffects", as.get("AdverseEffects"));
 		    anns.put("ResearchTechnique", as.get("ResearchTechnique"));
