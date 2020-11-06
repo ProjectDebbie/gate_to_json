@@ -190,8 +190,6 @@ public class App {
 		long id_document = System.currentTimeMillis();
 		String name = doc.getName().substring(0, doc.getName().indexOf(".xml")+4);
 		String plainText = doc.getContent().getContent(0l, gate.Utils.lengthLong(doc)).toString();
-		
-		
 		String[] splitText = plainText.split("\n");
 		String pubDate = splitText[0];
 		String pmid = splitText[1];
@@ -236,7 +234,9 @@ public class App {
 	    writer1.close();
 	    writer1 = null;
 	    annotated_document=null;
-	    
+	    splitText=null;
+	    as=null;
+	    types=null;
 	    //document text
     	JsonObject text_document = new JsonObject();
     	text_document.addProperty("id", id_document);
@@ -249,7 +249,18 @@ public class App {
     	writer2.close();
     	writer2=null;
     	text_document = null;
-    }
+    	plainText = null;
+    	text_document=null;
+		pmid=null;
+		title=null;
+		pubDate=null;
+		gsonBuilder=null;
+		doc=null;
+		dateFormat=null;
+		date=null;
+		type_array=null;
+		name=null;
+	}
 	
 	/**
      * Return a set of files 
