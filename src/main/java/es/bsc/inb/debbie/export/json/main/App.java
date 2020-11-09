@@ -194,8 +194,6 @@ public class App {
 		String pubDate = splitText[0];
 		String pmid = splitText[1];
 		String title = splitText[2];
-		
-		
 		//now add other relevant attributes, first parse the string to json, then add attributes.
     	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     	Date date = new Date();
@@ -221,10 +219,13 @@ public class App {
 		    	annotationObject.addProperty("endOffset", annotation.getEndNode().getOffset());
 		    	for (Object key : annotation.getFeatures().keySet()) {
 		    		annotationObject.addProperty(key.toString(), annotation.getFeatures().get(key).toString());
+		    		key=null;
 		    	}
 		    	type_array.add(annotationObject);
+		    	annotationObject=null;
+		    	annotation=null;
 		    }
-	    	
+	    	type=null;
 		}
 		annotated_document.add("annotations", type_array);
 	    //write the annotations to file annotations
@@ -272,8 +273,8 @@ public class App {
 	    Set<String> fileList = new HashSet<>();
 	    try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(dir))) {
 	        for (Path path : stream) {
-	            if (!Files.isDirectory(path)) {
-	                fileList.add(FileUtils.removeExtension(path.getFileName().toString()));
+	            if (!Files.isDirectory(path) && path.getFileName().toString().endsWith("_annotations.json")) {
+	                fileList.add(path.getFileName().toString().substring(0, path.getFileName().toString().indexOf("_annotations.json")));
 	            }
 	        }
 	    }
