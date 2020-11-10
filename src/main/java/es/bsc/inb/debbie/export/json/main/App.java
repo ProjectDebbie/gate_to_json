@@ -187,7 +187,6 @@ public class App {
 		gate.Document doc = Factory.newDocument(inputFile.toURI().toURL(), "UTF-8");
 		Gson gsonBuilder = new GsonBuilder().create();
 		JsonObject annotated_document = new JsonObject();
-		long id_document = System.currentTimeMillis();
 		String name = doc.getName().substring(0, doc.getName().indexOf(".xml")+4);
 		String plainText = doc.getContent().getContent(0l, gate.Utils.lengthLong(doc)).toString();
 		String[] splitText = plainText.split("\n");
@@ -229,27 +228,40 @@ public class App {
 		}
 		annotated_document.add("annotations", type_array);
 	    //write the annotations to file annotations
-	    java.io.Writer writer1 = new java.io.BufferedWriter(new java.io.OutputStreamWriter(new FileOutputStream(outputAnnotationsFile, false)));
+		FileOutputStream fileOutputStream = new FileOutputStream(outputAnnotationsFile, false);
+		java.io.OutputStreamWriter outputStreamWriter = new java.io.OutputStreamWriter(fileOutputStream);
+	    java.io.Writer writer1 = new java.io.BufferedWriter(outputStreamWriter);
 	    writer1.write(gsonBuilder.toJson(annotated_document));
 	    writer1.flush();
 	    writer1.close();
+	    outputStreamWriter.close();
+    	fileOutputStream.close();
 	    writer1 = null;
+	    outputStreamWriter=null;
+	    fileOutputStream=null;
 	    annotated_document=null;
 	    splitText=null;
 	    as=null;
 	    types=null;
 	    //document text
     	JsonObject text_document = new JsonObject();
-    	text_document.addProperty("id", id_document);
+    	text_document.addProperty("_id", pmid);
+    	text_document.addProperty("pmid", pmid);
     	text_document.addProperty("name", name);
     	text_document.addProperty("text", plainText);
 		//write to file document text
-    	java.io.Writer writer2 = new java.io.BufferedWriter(new java.io.OutputStreamWriter(new FileOutputStream(outputTextFile, false)));
+    	FileOutputStream fileOutputStream2 = new FileOutputStream(outputTextFile, false);
+		java.io.OutputStreamWriter outputStreamWriter2 = new java.io.OutputStreamWriter(fileOutputStream2);
+    	java.io.Writer writer2 = new java.io.BufferedWriter(outputStreamWriter2);
     	writer2.write(gsonBuilder.toJson(text_document));
     	writer2.flush();
     	writer2.close();
+    	outputStreamWriter2.close();
+    	fileOutputStream2.close();
     	writer2=null;
-    	text_document = null;
+    	outputStreamWriter2=null;
+	    fileOutputStream2=null;
+	    text_document = null;
     	plainText = null;
     	text_document=null;
 		pmid=null;
