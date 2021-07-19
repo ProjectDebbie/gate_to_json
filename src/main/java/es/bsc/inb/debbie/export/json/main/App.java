@@ -201,8 +201,9 @@ public class App {
 		    anns.put("StudyType", as.get("StudyType"));
 		    String plainText = doc.getContent().getContent(0l, gate.Utils.lengthLong(doc)).toString();
 			String[] splitText = plainText.split("\n");
-			String pubDate = splitText[0];
-			String title = splitText[1];
+			String study_type = splitText[0];
+			String pubDate = splitText[1];
+			String title = splitText[2];
 			String pmid = inputFile.getName().replace(".xml", "");
  	        //write the gate annotations into a string, because we need to agregate more relevant attributes later
 	        StringWriter sw = new StringWriter();
@@ -219,6 +220,7 @@ public class App {
 			json.put("date", dateFormat.format(date));
 			json.put("pubdate", pubDate);
 			json.put("title", title);
+			json.put("study_type", study_type);
 			String text_document = json.get("text").toString();
 			json.remove("text");
 			//write to file metadata
@@ -256,6 +258,7 @@ public class App {
 			anns=null;
 			text_document=null;
 			pmid=null;
+			study_type=null;
 			title=null;
 			pubDate=null;
 		} catch (org.json.simple.parser.ParseException e) {
