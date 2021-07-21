@@ -190,9 +190,10 @@ public class App {
 		String name = doc.getName().substring(0, doc.getName().indexOf(".xml")+4);
 		String plainText = doc.getContent().getContent(0l, gate.Utils.lengthLong(doc)).toString();
 		String[] splitText = plainText.split("\n");
-		String pubDate = splitText[0];
-		String pmid = splitText[1];
+		String study_type = splitText[0];
+		String pubDate = splitText[1];
 		String title = splitText[2];
+		String pmid = inputFile.getName().replace(".xml", "");
 		//now add other relevant attributes, first parse the string to json, then add attributes.
     	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     	Date date = new Date();
@@ -201,6 +202,15 @@ public class App {
     	annotated_document.addProperty("date", dateFormat.format(date));
     	annotated_document.addProperty("pubdate", pubDate);
     	annotated_document.addProperty("title", title);
+    	if(study_type.contains("non-clinical")) {
+    		annotated_document.addProperty("study_type", "non-clinical");
+    	}else if(study_type.contains("clinical")){
+    		annotated_document.addProperty("study_type", "clinical");
+    	}else {
+    		annotated_document.addProperty("study_type", "error-reading-study-type");
+    		
+    	}
+    	
 
     	Set<String> types = Stream.of("Biomaterial","BiomaterialTypes","Chemical","BiologicallyActiveSubstance","ManufacturedObject","ManufacturedObjectComponent",
 									  "MedicalApplication","ManufacturedObjectFeatures","Shape","Structure","ArchitecturalOrganization","DegradationFeatures",
