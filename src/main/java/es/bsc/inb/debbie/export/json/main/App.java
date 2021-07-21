@@ -3,7 +3,6 @@ package es.bsc.inb.debbie.export.json.main;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -11,12 +10,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -26,10 +24,12 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.maven.shared.utils.io.FileUtils;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import gate.Annotation;
 import gate.AnnotationSet;
@@ -63,6 +63,10 @@ public class App {
         output.setRequired(true);
         options.addOption(output);
 
+        Option set = new Option("a", "annotation_set", true, "Annotation set where the annotation will be included");
+        set.setRequired(true);
+        options.addOption(set);
+        
         Option workdir = new Option("workdir", "workdir", true, "workDir directory path");
         workdir.setRequired(false);
         options.addOption(workdir);
@@ -80,13 +84,18 @@ public class App {
 
         String inputFilePath = cmd.getOptionValue("input");
         String outputFilePath = cmd.getOptionValue("output");
+        String annotationSet = cmd.getOptionValue("annotation_set");
         String workdirPath = cmd.getOptionValue("workdir");
         if (!java.nio.file.Files.isDirectory(Paths.get(inputFilePath))) {
     		System.out.println("Please set the inputDirectoryPath ");
 			System.exit(1);
     	}
 
-
+        if (annotationSet==null) {
+        	System.out.println("Please set the annotation set where the annotation will be included");
+			System.exit(1);
+    	}
+        
     	File outputDirectory = new File(outputFilePath);
 	    if(!outputDirectory.exists())
 	    	outputDirectory.mkdirs();
@@ -112,7 +121,7 @@ public class App {
 	    }
 
 		try {
-			process(inputFilePath, outputFilePath, workdirPath, processedFiles);
+			process(inputFilePath, outputFilePath, workdirPath, processedFiles, annotationSet);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -123,7 +132,7 @@ public class App {
 	 * @param properties_parameters_path
      * @throws IOException 
 	 */
-	public static void process(String inputDirectoryPath, String outputDirectoryPath, String workdir, Set<String> processedFiles) throws IOException {
+	public static void process(String inputDirectoryPath, String outputDirectoryPath, String workdir, Set<String> processedFiles, String annotationSet) throws IOException {
     	System.out.println("App::processTagger :: INIT ");
     	long begTest = new java.util.Date().getTime();
 		if (java.nio.file.Files.isDirectory(Paths.get(inputDirectoryPath))) {
@@ -138,7 +147,7 @@ public class App {
 						String fileOutPutName = file.getName();
 						File outputAbstractFile = new File (outputDirectoryPath +  File.separator + fileOutPutName.replace(".xml", "_abstract.json"));
 						File outputAnnotationsFile = new File (outputDirectoryPath +  File.separator + fileOutPutName.replace(".xml", "_annotations.json"));
-						processDocument(file, outputAbstractFile, outputAnnotationsFile);
+						processDocument(file, outputAbstractFile, outputAnnotationsFile, annotationSet);
 						fileOutPutName=null;
 						outputAbstractFile=null;
 						outputAnnotationsFile=null;
@@ -164,110 +173,106 @@ public class App {
 		System.out.println("Execution time:  " + secs + " seconds");
 		System.out.println("App::process :: END ");
 	}
+	
 	/**
 	 * Execute process in a document
 	 * @param inputFile
-	 * @param outputGATEFileResearchTechnique
+	 * @param outputGATEFile
 	 * @throws ResourceInstantiationException
 	 * @throws IOException 
 	 * @throws JsonGenerationException 
 	 * @throws InvalidOffsetException
 	 */
-	private static void processDocument(File inputFile, File outputAbstractFile, File outputAnnotationsFile) throws ResourceInstantiationException, JsonGenerationException, IOException{
-		try {
-			gate.Document doc = Factory.newDocument(inputFile.toURI().toURL(), "UTF-8");
-			AnnotationSet as = doc.getAnnotations("BSC");
-		    Map<String, Collection<Annotation>> anns = new HashMap<String, Collection<Annotation>>();
-		    anns.put("Biomaterial", as.get("Biomaterial"));
-		    anns.put("BiomaterialTypes", as.get("BiomaterialTypes"));
-		    anns.put("Chemical", as.get("Chemical"));
-		    anns.put("BiologicallyActiveSubstance", as.get("BiologicallyActiveSubstance"));
-		    anns.put("ManufacturedObject", as.get("ManufacturedObject"));
-		    anns.put("ManufacturedObjectComponent", as.get("ManufacturedObjectComponent"));
-		    anns.put("MedicalApplication", as.get("MedicalApplication"));
-		    anns.put("ManufacturedObjectFeatures", as.get("ManufacturedObjectFeatures"));
-		    anns.put("Shape", as.get("Shape"));
-		    anns.put("Structure", as.get("Structure"));
-		    anns.put("ArchitecturalOrganization", as.get("ArchitecturalOrganization"));
-		    anns.put("DegradationFeatures", as.get("DegradationFeatures"));
-		    anns.put("AssociatedBiologicalProcess", as.get("AssociatedBiologicalProcess"));
-		    anns.put("MaterialProcessing", as.get("MaterialProcessing"));
-		    anns.put("Cell", as.get("Cell"));
-		    anns.put("Species", as.get("Species"));
-		    anns.put("Tissue", as.get("Tissue"));
-		    anns.put("AdverseEffects", as.get("AdverseEffects"));
-		    anns.put("ResearchTechnique", as.get("ResearchTechnique"));
-		    anns.put("EffectOnBiologicalSystem", as.get("EffectOnBiologicalSystem"));
-		    anns.put("StudyType", as.get("StudyType"));
-		    String plainText = doc.getContent().getContent(0l, gate.Utils.lengthLong(doc)).toString();
-			String[] splitText = plainText.split("\n");
-			String pubDate = splitText[0];
-			String pmid = splitText[1];
-			String title = splitText[2];
-			//write the gate annotations into a string, because we need to agregate more relevant attributes later
-	        StringWriter sw = new StringWriter();
-	        java.io.Writer out = new java.io.BufferedWriter(sw);
-	        gate.corpora.DocumentJsonUtils.writeDocument(doc, anns, out);
-	    	
-	        //now add other relevant attributes, first parse the string to json, then add attributes.
-	    	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-	    	Date date = new Date();
-	    	JSONParser parser = new JSONParser();
-	    	JSONObject json = (JSONObject) parser.parse(sw.toString());
-			json.put("_id", pmid);
-			json.put("pmid", pmid);
-			json.put("date", dateFormat.format(date));
-			json.put("pubdate", pubDate);
-			json.put("title", title);
-			String text_document = json.get("text").toString();
-			json.remove("text");
-			//write to file metadata
-	    	java.io.Writer writer = new java.io.BufferedWriter(new java.io.OutputStreamWriter(new FileOutputStream(outputAnnotationsFile, false)));
-	    	writer.write(json.toJSONString());
-	    	writer.flush();
-	    	writer.close();
-	    	
-	    	//document text
-	    	JSONObject textJsonObject = new JSONObject();
-	    	textJsonObject.put("_id", pmid);
-	    	textJsonObject.put("pmid", pmid);
-	    	textJsonObject.put("text", text_document);
-			//write to file document text
-	    	java.io.Writer writer2 = new java.io.BufferedWriter(new java.io.OutputStreamWriter(new FileOutputStream(outputAbstractFile, false)));
-	    	writer2.write(textJsonObject.toJSONString());
-	    	writer2.flush();
-	    	writer2.close();
-	    	out.close();
-			doc.cleanup();
-			anns.clear();
-			as.clear();
-			sw.close();
-			json.clear();
-			textJsonObject.clear();
-			parser=null;
-			json=null;
-			textJsonObject=null;
-			writer=null;
-			writer2=null;
-			sw=null;
-			out=null;
-			doc=null;
-			as=null;
-			anns=null;
-			text_document=null;
-			pmid=null;
-			title=null;
-			pubDate=null;
-		} catch (org.json.simple.parser.ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvalidOffsetException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}catch(Exception e) {
-			System.out.println("processDocument :: ERROR with file " + inputFile.getAbsolutePath());
-			e.printStackTrace();
+	private static void processDocument(File inputFile, File outputTextFile, File outputAnnotationsFile, String annotationSet) throws ResourceInstantiationException, JsonGenerationException, IOException, InvalidOffsetException{
+		gate.Document doc = Factory.newDocument(inputFile.toURI().toURL(), "UTF-8");
+		Gson gsonBuilder = new GsonBuilder().create();
+		JsonObject annotated_document = new JsonObject();
+		String name = doc.getName().substring(0, doc.getName().indexOf(".xml")+4);
+		String plainText = doc.getContent().getContent(0l, gate.Utils.lengthLong(doc)).toString();
+		String[] splitText = plainText.split("\n");
+		String pubDate = splitText[0];
+		String pmid = splitText[1];
+		String title = splitText[2];
+		//now add other relevant attributes, first parse the string to json, then add attributes.
+    	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    	Date date = new Date();
+    	annotated_document.addProperty("_id", pmid);
+    	annotated_document.addProperty("pmid", pmid);
+    	annotated_document.addProperty("date", dateFormat.format(date));
+    	annotated_document.addProperty("pubdate", pubDate);
+    	annotated_document.addProperty("title", title);
+
+    	Set<String> types = Stream.of("Biomaterial","BiomaterialTypes","Chemical","BiologicallyActiveSubstance","ManufacturedObject","ManufacturedObjectComponent",
+									  "MedicalApplication","ManufacturedObjectFeatures","Shape","Structure","ArchitecturalOrganization","DegradationFeatures",
+									  "AssociatedBiologicalProcess","MaterialProcessing","Cell","Species","Tissue","AdverseEffects",
+									  "ResearchTechnique","EffectOnBiologicalSystem","StudyType").collect(Collectors.toCollection(HashSet::new));
+		//JsonObject entities = new JsonObject();
+		AnnotationSet as = doc.getAnnotations(annotationSet).get(types);
+		JsonArray type_array = new JsonArray();
+		for (String type : as.getAllTypes()) {
+	    	for (Annotation annotation : as.get(type).inDocumentOrder()) {
+		    	JsonObject annotationObject = new JsonObject();
+		    	annotationObject.addProperty("type", annotation.getType());
+		    	//annotationObject.addProperty("text", gate.Utils.stringFor(doc, annotation));
+		    	annotationObject.addProperty("startOffset", annotation.getStartNode().getOffset());
+		    	annotationObject.addProperty("endOffset", annotation.getEndNode().getOffset());
+		    	for (Object key : annotation.getFeatures().keySet()) {
+		    		annotationObject.addProperty(key.toString(), annotation.getFeatures().get(key).toString());
+		    		key=null;
+		    	}
+		    	type_array.add(annotationObject);
+		    	annotationObject=null;
+		    	annotation=null;
+		    }
+	    	type=null;
 		}
+		annotated_document.add("annotations", type_array);
+	    //write the annotations to file annotations
+		FileOutputStream fileOutputStream = new FileOutputStream(outputAnnotationsFile, false);
+		java.io.OutputStreamWriter outputStreamWriter = new java.io.OutputStreamWriter(fileOutputStream);
+	    java.io.Writer writer1 = new java.io.BufferedWriter(outputStreamWriter);
+	    writer1.write(gsonBuilder.toJson(annotated_document));
+	    writer1.flush();
+	    writer1.close();
+	    outputStreamWriter.close();
+    	fileOutputStream.close();
+	    writer1 = null;
+	    outputStreamWriter=null;
+	    fileOutputStream=null;
+	    annotated_document=null;
+	    splitText=null;
+	    as=null;
+	    types=null;
+	    //document text
+    	JsonObject text_document = new JsonObject();
+    	text_document.addProperty("_id", pmid);
+    	text_document.addProperty("pmid", pmid);
+    	text_document.addProperty("name", name);
+    	text_document.addProperty("text", plainText);
+		//write to file document text
+    	FileOutputStream fileOutputStream2 = new FileOutputStream(outputTextFile, false);
+		java.io.OutputStreamWriter outputStreamWriter2 = new java.io.OutputStreamWriter(fileOutputStream2);
+    	java.io.Writer writer2 = new java.io.BufferedWriter(outputStreamWriter2);
+    	writer2.write(gsonBuilder.toJson(text_document));
+    	writer2.flush();
+    	writer2.close();
+    	outputStreamWriter2.close();
+    	fileOutputStream2.close();
+    	writer2=null;
+    	outputStreamWriter2=null;
+	    fileOutputStream2=null;
+	    text_document = null;
+    	plainText = null;
+    	text_document=null;
+		pmid=null;
+		title=null;
+		pubDate=null;
+		gsonBuilder=null;
+		doc=null;
+		dateFormat=null;
+		date=null;
+		type_array=null;
+		name=null;
 	}
 	
 	/**
@@ -280,8 +285,8 @@ public class App {
 	    Set<String> fileList = new HashSet<>();
 	    try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(dir))) {
 	        for (Path path : stream) {
-	            if (!Files.isDirectory(path)) {
-	                fileList.add(FileUtils.removeExtension(path.getFileName().toString()));
+	            if (!Files.isDirectory(path) && path.getFileName().toString().endsWith("_annotations.json")) {
+	                fileList.add(path.getFileName().toString().substring(0, path.getFileName().toString().indexOf("_annotations.json")));
 	            }
 	        }
 	    }
