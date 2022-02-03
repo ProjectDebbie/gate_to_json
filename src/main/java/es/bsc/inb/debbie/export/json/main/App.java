@@ -59,6 +59,10 @@ public class App {
         input.setRequired(true);
         options.addOption(input);
 
+        Option input_metadata = new Option("im", "input_metadata", true, "input metadata directory path");
+        input_metadata.setRequired(true);
+        options.addOption(input_metadata);
+        
         Option output = new Option("o", "output", true, "output directory path");
         output.setRequired(true);
         options.addOption(output);
@@ -83,6 +87,7 @@ public class App {
         }
 
         String inputFilePath = cmd.getOptionValue("input");
+        String inputMetadataFilePath = cmd.getOptionValue("input_metadata");
         String outputFilePath = cmd.getOptionValue("output");
         String annotationSet = cmd.getOptionValue("annotation_set");
         String workdirPath = cmd.getOptionValue("workdir");
@@ -91,6 +96,11 @@ public class App {
 			System.exit(1);
     	}
 
+        if (!java.nio.file.Files.isDirectory(Paths.get(inputMetadataFilePath))) {
+    		System.out.println("Please set the inputMetadataFilePath ");
+			System.exit(1);
+    	}
+        
         if (annotationSet==null) {
         	System.out.println("Please set the annotation set where the annotation will be included");
 			System.exit(1);
@@ -121,7 +131,7 @@ public class App {
 	    }
 
 		try {
-			process(inputFilePath, outputFilePath, workdirPath, processedFiles, annotationSet);
+			process(inputFilePath, inputMetadataFilePath, outputFilePath, workdirPath, processedFiles, annotationSet);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -132,7 +142,7 @@ public class App {
 	 * @param properties_parameters_path
      * @throws IOException 
 	 */
-	public static void process(String inputDirectoryPath, String outputDirectoryPath, String workdir, Set<String> processedFiles, String annotationSet) throws IOException {
+	public static void process(String inputDirectoryPath, String inputMetadataDirectoryPath,String outputDirectoryPath, String workdir, Set<String> processedFiles, String annotationSet) throws IOException {
     	System.out.println("App::processTagger :: INIT ");
     	long begTest = new java.util.Date().getTime();
 		if (java.nio.file.Files.isDirectory(Paths.get(inputDirectoryPath))) {
@@ -143,14 +153,23 @@ public class App {
 			for (File file : files) {
 				if(file.getName().endsWith(".xml") && !processedFiles.contains(FileUtils.removeExtension(file.getName()))){
 					try {
-						System.out.println("App::process :: processing file : " + file.getAbsolutePath());
-						String fileOutPutName = file.getName();
-						File outputAbstractFile = new File (outputDirectoryPath +  File.separator + fileOutPutName.replace(".xml", "_abstract.json"));
-						File outputAnnotationsFile = new File (outputDirectoryPath +  File.separator + fileOutPutName.replace(".xml", "_annotations.json"));
-						processDocument(file, outputAbstractFile, outputAnnotationsFile, annotationSet);
-						fileOutPutName=null;
-						outputAbstractFile=null;
-						outputAnnotationsFile=null;
+						String metadataFilePath = inputMetadataDirectoryPath + File.separator + file.getName().replace(".xml", ".meta") ;
+						File fileMetadata = new File(metadataFilePath);
+						if(fileMetadata.exists()) {
+							System.out.println("App::process :: processing file : " + file.getAbsolutePath());
+							System.out.println("App::process :: processing file metadata: " + fileMetadata.getAbsolutePath());
+							String fileOutPutName = file.getName();
+							File outputAbstractFile = new File (outputDirectoryPath +  File.separator + fileOutPutName.replace(".xml", "_abstract.json"));
+							File outputAnnotationsFile = new File (outputDirectoryPath +  File.separator + fileOutPutName.replace(".xml", "_annotations.json"));
+							processDocument(file, fileMetadata, outputAbstractFile, outputAnnotationsFile, annotationSet);
+							fileOutPutName=null;
+							outputAbstractFile=null;
+							outputAnnotationsFile=null;
+						}else {
+							System.out.println("App::process :: error with document, metadata file not exist " + metadataFilePath);
+						}
+						
+						
 					} catch (ResourceInstantiationException e) {
 						System.out.println("App::process :: error with document " + file.getAbsolutePath());
 						e.printStackTrace();
@@ -183,16 +202,21 @@ public class App {
 	 * @throws JsonGenerationException 
 	 * @throws InvalidOffsetException
 	 */
-	private static void processDocument(File inputFile, File outputTextFile, File outputAnnotationsFile, String annotationSet) throws ResourceInstantiationException, JsonGenerationException, IOException, InvalidOffsetException{
+	private static void processDocument(File inputFile, File inputFileMetadata, File outputTextFile, File outputAnnotationsFile, String annotationSet) throws ResourceInstantiationException, JsonGenerationException, IOException, InvalidOffsetException{
 		gate.Document doc = Factory.newDocument(inputFile.toURI().toURL(), "UTF-8");
 		Gson gsonBuilder = new GsonBuilder().create();
 		JsonObject annotated_document = new JsonObject();
 		String name = doc.getName().substring(0, doc.getName().indexOf(".xml")+4);
+		
+		String plainTextMetadata = FileUtils.fileRead(inputFileMetadata);
+		String[] splitTextMetadata = plainTextMetadata.split("\n");
+		String pubDate = splitTextMetadata[0];
+		String study_type = splitTextMetadata[1];
+		
+		
 		String plainText = doc.getContent().getContent(0l, gate.Utils.lengthLong(doc)).toString();
 		String[] splitText = plainText.split("\n");
-		String study_type = splitText[0];
-		String pubDate = splitText[1];
-		String title = splitText[2];
+		String title = splitText[0];
 		String pmid = inputFile.getName().replace(".xml", "");
 		//now add other relevant attributes, first parse the string to json, then add attributes.
     	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
