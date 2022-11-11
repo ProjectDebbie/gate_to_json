@@ -235,8 +235,7 @@ public class App {
     		
     	}
     	
-
-    	Set<String> types = Stream.of("Biomaterial","BiomaterialTypes","Chemical","BiologicallyActiveSubstance","ManufacturedObject","ManufacturedObjectComponent",
+    	Set<String> types = Stream.of("Biomaterial","BiomaterialType","Chemical","BiologicallyActiveSubstance","ManufacturedObject","ManufacturedObjectComponent",
 									  "MedicalApplication","ManufacturedObjectFeatures","Shape","Structure","ArchitecturalOrganization","DegradationFeatures",
 									  "AssociatedBiologicalProcess","MaterialProcessing","Cell","Species","Tissue","AdverseEffects",
 									  "ResearchTechnique","EffectOnBiologicalSystem","StudyType").collect(Collectors.toCollection(HashSet::new));
